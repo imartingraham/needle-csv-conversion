@@ -6,28 +6,34 @@ var fs = require('fs'),
 		tempData = {},
 		unconvertedFolder = "./unconverted/",
 		convertedFolder = "./converted/",
-		newColumns = ["Date", "Day of Week", "Time", "Header Qualified Chats", "Product Qualified Chats", "Proactive Qualified Chats"];
+		newColumns = ["Date", "Day of Week", "Time"],
+		metricsNeeded = ['Qualified Chats', 'Ghost Chats'],
+		newMetricColumns = [];
 
 
 // set date language so we get the correct month and day names
 moment.lang('en');
 
 function backFillPrevious(currentDate, previousDate){
-	var backFillDates = [];
+	var backFillDates = [],
+			data;
 	if(currentDate.dayOfYear() != previousDate.dayOfYear()){
 		var i = 0,
 				currHours = currentDate.hour();
 		for(i = currHours; i  > 0; i--){
 			var prevHour = moment(currentDate);
 			prevHour.subtract('h', i);
-			backFillDates.push({
+
+			data = {
 				"Date": prevHour.format('MM/DD/YYYY'),
 				"Day of Week": prevHour.format('dddd'),
-				"Time":  prevHour.format("h:mma"),
-				"Header Qualified Chats": 0,
-				"Product Qualified Chats": 0,
-				"Proactive Qualified Chats": 0
+				"Time":  prevHour.format("h:mma")
+			}
+			newMetricColumns.forEach(function(column){
+				data[column] = 0;
 			});
+			
+			backFillDates.push(data);
 		}
 	}
 	return backFillDates;
@@ -36,6 +42,7 @@ function backFillPrevious(currentDate, previousDate){
 
 function backFillNext(currentDate, nextDate){
 	var backFillDates = [],
+			data = {},
 			hoursDiff = 0;
 	// first let's compare days. we'll just backfill for the current day
 
@@ -54,14 +61,16 @@ function backFillNext(currentDate, nextDate){
 			var nextHour = moment(currentDate);
 			// add an hour 
 			nextHour.add('h', i + 1);
-			backFillDates.push({
+			data = {
 				"Date": nextHour.format('MM/DD/YYYY'),
 				"Day of Week": nextHour.format('dddd'),
-				"Time":  nextHour.format("h:mma"),
-				"Header Qualified Chats": 0,
-				"Product Qualified Chats": 0,
-				"Proactive Qualified Chats": 0
+				"Time":  nextHour.format("h:mma")
+			}
+			newMetricColumns.forEach(function(column){
+				data[column] = 0;
 			});
+
+			backFillDates.push(data);
 		}
 	}
 	return backFillDates;
@@ -82,8 +91,18 @@ function setCurrentDateInfo(row){
 		}
 		// we're uppercasing the first character of the campaign and adding qualified chats on the end
 		var campaignName = row['Campaign'].split('-')[0]
-		var qualifiedChatName = campaignName.charAt(0).toUpperCase() + campaignName.slice(1) + " Qualified Chats";
-		tempData[date.toString()][qualifiedChatName] = row["Qualified Chats"];
+		metricsNeeded.forEach(function(item){
+			var qualifiedChatName = campaignName.charAt(0).toUpperCase() + campaignName.slice(1) + " "+ item;
+			tempData[date.toString()][qualifiedChatName] = row[item];
+			// add the column if it not in the initial array
+			// this will help with new campaigns that show up later
+			if(newColumns.indexOf(qualifiedChatName) == -1){
+				newColumns.push(qualifiedChatName);
+			}
+			if(newMetricColumns.indexOf(qualifiedChatName) == -1){
+				newMetricColumns.push(qualifiedChatName);
+			}
+		});
 	}
 }
 
@@ -96,16 +115,13 @@ function writeData(file){
 	for(i = 0; i < keysLength; i++){
 
 		var data = tempData[dataKeys[i]];
-		// set defaults for qualified chats if we don't have them
-		if(typeof data['Header Qualified Chats'] == 'undefined'){
-			data['Header Qualified Chats'] = 0;
-		}
-		if(typeof data['Product Qualified Chats'] == 'undefined'){
-			data['Product Qualified Chats'] = 0;
-		}
-		if(typeof data['Procative Qualified Chats'] == 'undefined'){
-			data['Proactive Qualified Chats'] = 0;
-		}
+
+		// fill in empty values for unset campaigns 
+		newMetricColumns.forEach(function(column){
+			if(typeof data[column] == 'undefined'){
+				data[column] = 0;
+			}
+		});
 
 		// let's back fill the hours with null values
 		var currRowDate = moment(dataKeys[i]),
