@@ -7,9 +7,18 @@ var fs = require('fs'),
 		unconvertedFolder = "./unconverted/",
 		convertedFolder = "./converted/",
 		newColumns = ["Date", "Day of Week", "Time"],
-		metricsNeeded = ['Qualified Chats', 'Ghost Chats'],
-		newMetricColumns = [];
+		metricsNeeded = ['Qualified Chats'],
+		newMetricColumns = [],
+		args = {};
 
+process.argv.forEach(function(item){
+	var argSet = item.split('=');
+	args[argSet[0]] = argSet[1]
+});
+
+if(typeof args['metrics'] != 'undefined'){
+	metricsNeeded = args['metrics'].split(',');
+}
 
 // set date language so we get the correct month and day names
 moment.lang('en');

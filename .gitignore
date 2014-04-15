@@ -1,4 +1,5 @@
 unconverted/*
-!unconverted/.gitkeep
 converted/*
+!unconverted/.gitkeep
 !converted/.gitkeep
+npm-debug.log
