@@ -1,2 +1,4 @@
 unconverted/*
+!unconverted/.gitkeep
 converted/*
+!converted/.gitkeep
