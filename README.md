@@ -1,4 +1,4 @@
-# Needle File Conversion
+# Needle CSV Conversion
 This script converts the Needle CSV to a format that fills in missing dates and puts all the campain metric info onto the same date.
 
 ## Dependencies
@@ -13,7 +13,7 @@ This script needs to be run in the command line.
 
 1. Put the files that need to be converted into the folder called `unconverted`
 2. Open up your command line program (Terminal on mac)
-3. cd into the `needle-data-conversion` directory
+3. cd into the `needle-csv-conversion` directory
 4. Run this command `node script`
 5. When the script has finished converting a file the command line will output  "{fileName} has been converted"
 6. Check the `converted` directory for your converted files
