@@ -10,6 +10,7 @@ var fs = require('fs'),
 		metricsNeeded = ['Qualified Chats'],
 		newMetricColumns = [],
 		args = {};
+		
 process.argv.forEach(function(item){
 	var argSet = item.trim().split('=');
 	args[argSet[0]] = argSet[1]
@@ -20,6 +21,8 @@ process.argv.forEach(function(item){
 if(typeof args['metrics'] != 'undefined'){
 	metricsNeeded = args['metrics'].split(',').map(function(item){ return item.trim()});
 }
+// node  runs into issues using the ~ as a short cut, so we're going to replace it
+// with the full user path
 if(typeof args['convertedDir'] != 'undefined'){
 	convertedFolder = args['convertedDir'].trim().replace('~', '/Users/'+process.env.USER);
 }
