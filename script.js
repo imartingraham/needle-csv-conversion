@@ -10,7 +10,6 @@ var fs = require('fs'),
 		metricsNeeded = ['Qualified Chats'],
 		newMetricColumns = [],
 		args = {};
-
 process.argv.forEach(function(item){
 	var argSet = item.trim().split('=');
 	args[argSet[0]] = argSet[1]
@@ -20,6 +19,13 @@ process.argv.forEach(function(item){
 // add new metrics as needed
 if(typeof args['metrics'] != 'undefined'){
 	metricsNeeded = args['metrics'].split(',').map(function(item){ return item.trim()});
+}
+if(typeof args['convertedDir'] != 'undefined'){
+	convertedFolder = args['convertedDir'].trim().replace('~', '/Users/'+process.env.USER);
+}
+
+if(typeof args['unconvertedDir'] != 'undefined'){
+	unconvertedFolder = args['unconvertedDir'].trim().replace('~', '/Users/'+process.env.USER);
 }
 
 // set date language so we get the correct month and day names
@@ -93,7 +99,8 @@ function backFillNext(currentDate, nextDate){
 function setCurrentDateInfo(row){
 	var tempDate = row['Date'].replace('a.m.', 'am').replace('p.m.', 'pm'),
 			date = moment(tempDate, 'MMMM DD, YYYY ha');
-	if(date.isValid()){
+	// we only want to run the conversion if the file has a "Campaign" columns
+	if(date.isValid() && typeof row['Campaign'] != 'undefined'){
 
 		if(typeof tempData[date.toString()] == 'undefined'){
 			tempData[date.toString()] = {

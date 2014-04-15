@@ -22,8 +22,16 @@ This script needs to be run in the command line.
 ### Advanced
 By default, the script only gets the `Qualified Chats` metric from the Needle CSV file.  You can pass an argument when you run the script like this:
 
+#### Customizing the columns converted
+
 `node script metrics="Qualified Chats,Ghost Chats"`
 
 The argument's values must be a comma separated list inside quotes.
 
 The metrics argument will look in the uncoverted csv for columns matching the ones passed and add those to the converted csv for each campaign.
+
+#### Custom converted and unconverted directories
+
+This will make it so you don't have to actually copy the files you need converted to the converted and unconverted directory
+
+`node script convertedDir="/path/to/converted/files/" unconvertedDir="path/to/unconverted/files/"`
