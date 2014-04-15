@@ -12,12 +12,14 @@ var fs = require('fs'),
 		args = {};
 
 process.argv.forEach(function(item){
-	var argSet = item.split('=');
+	var argSet = item.trim().split('=');
 	args[argSet[0]] = argSet[1]
 });
 
+// set the metricsNeeded to allow us to
+// add new metrics as needed
 if(typeof args['metrics'] != 'undefined'){
-	metricsNeeded = args['metrics'].split(',');
+	metricsNeeded = args['metrics'].split(',').map(function(item){ return item.trim()});
 }
 
 // set date language so we get the correct month and day names
@@ -38,6 +40,7 @@ function backFillPrevious(currentDate, previousDate){
 				"Day of Week": prevHour.format('dddd'),
 				"Time":  prevHour.format("h:mma")
 			}
+			// set zero values for each metric
 			newMetricColumns.forEach(function(column){
 				data[column] = 0;
 			});
@@ -75,6 +78,7 @@ function backFillNext(currentDate, nextDate){
 				"Day of Week": nextHour.format('dddd'),
 				"Time":  nextHour.format("h:mma")
 			}
+			// set zero values for each metric
 			newMetricColumns.forEach(function(column){
 				data[column] = 0;
 			});
@@ -152,7 +156,7 @@ function writeData(file){
 	csv().from(newData)
 			.to(fs.createWriteStream(convertedFolder+convertedFileName), {header: true, columns: newColumns})
 			.on('end', function(){ 
-				console.log('all done');
+				console.log( convertedFileName.replace('converted-', '') +' has been converted');
 			});
 }
 
@@ -166,6 +170,5 @@ fs.readdir(unconvertedFolder, function(err, files){
 		.transform(setCurrentDateInfo)
 			// binding the file name to the function to create our new file
 			.on('end', writeData.bind(this, file));
-
 	});
 });
