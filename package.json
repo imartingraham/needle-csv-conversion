@@ -1,0 +1,10 @@
+{
+	"name": "needle-data-conversion",
+	"scripts": {
+		"start": "DEBUG=app:* node needle-conversion.js"
+	},
+	"dependencies": {
+		"csv": "latest",
+		"moment": "latest"
+	}
+}
